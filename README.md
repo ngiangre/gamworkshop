@@ -1,6 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<style type="text/css">
+body{ /* Normal  */
+      font-size: 20px;
+  }
+}
+</style>
+
 # gamworkshop
 
 <!-- badges: start -->
@@ -216,7 +223,9 @@ online. In the logit versus high school math parlance, the equation is
 
 <center>
 
-\(Y = \beta*X + \beta_0\) \<\>
+\(Y = \beta*X + \beta_0\)
+
+</center>
 
 where \(Y\) is the log odds of the probable association with Paranoia
 versus not Paranoia, \(\beta\) is the coefficient value of the
@@ -437,12 +446,12 @@ way.
 
 ``` r
 # https://stats.stackexchange.com/questions/29345/visualizing-a-spline-basis/29346
-knots=c(0,1,2,3,4,5,6)
+knots=c(1,2,3,4,5,6)
 x <- report_dat$nichd %>% as.integer()
-spl <- ns(x,knots=knots,intercept=F)
+spl <- ns(x*report_dat$Dstate,knots=knots,intercept=F,Boundary.knots=c(0,7))
 
-autoplot.basis.custom <- function(object, data, n=256, ...) {
-    fortified <- ggplot2::fortify(object, data, n)
+autoplot.basis.custom <- function(object) {
+    fortified <- ggplot2::fortify(object)
     all.knots <- c(attr(object, "Boundary.knots"),
                    attr(object, "knots")) %>%
         unname %>% sort
@@ -450,6 +459,8 @@ autoplot.basis.custom <- function(object, data, n=256, ...) {
                                 data=all.knots)
     #knot.df$nichd <- factor(knot.df$Spline,labels = stages)
     #fortified$nichd <- factor(fortified$Spline,labels = stages)
+    
+    #knot.df %>% ggplot(aes(x,y,color=Spline)) + geom_point() + geom_line()
     ggplot(fortified) +
         aes_string(x="x", y="y", group="Spline", color="Spline") +
         geom_line() +
