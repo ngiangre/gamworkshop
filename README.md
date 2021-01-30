@@ -14,7 +14,9 @@ body{ /* Normal  */
 
 <!-- badges: end -->
 
-The goal of gamworkshop is to …
+The goal of gamworkshop is to present somme modeling strategies to
+understand drug responses across childhoood using large observational
+data.
 
 ``` r
 library(gamworkshop)
@@ -36,14 +38,14 @@ interpretation and fit compared to linear models.
 
 Oftentimes we want to understand the relationship between a
 characteristic and an outcome. Modeling techniques are a great way to
-understand relationship between a characteristic (i.e. independent
+understand a relationship between a characteristic (i.e. independent
 variable, covariate) and an outcome (i.e. dependent variable, response).
 
 In my work, I want to evaluate a characteristic’s relationship to the
 outcome in a way that doesn’t bias the type of relationship it naturally
 may have. This is because I want to let the data *tell me* what the
-relaionship may be. In particular, I am interested in how an adverse
-event i.e. side effect is related to a drug exposure during childhood.
+relationship may be. In particular, I am interested in how an adverse
+event i.e. side effect is related to a drug exposure across childhood.
 More specifically, I want to understand how the occurrence of a side
 effect may change across child development stages.
 
@@ -81,8 +83,8 @@ and have advantages over traditionally used methods.
 # Question
 
 Which population model shows a quantitatively improved association
-between an adverse event with a drug as it is given at child
-developmental stages?
+between an adverse event with a drug exposure as it is reported at and
+across child developmental stages?
 
 [Child developmental
 stages](https://www.researchgate.net/profile/Katrina_Williams8/publication/230612139/figure/tbl2/AS:601671696650242@1520461119208/Age-Stages-Defined-According-to-NICHD-Pediatric-Terminology.png)
@@ -96,11 +98,12 @@ known adverse drug
 effect<sup>[1](http://doi.wiley.com/10.1111/j.1475-3588.2008.00490.x),[2](http://pediatrics.aappublications.org/cgi/doi/10.1542/peds.2008-0185)</sup>,
 with a mechanism of inhibiting dopamine
 neurons<sup>[3](http://link.springer.com/10.1007/s11065-006-9017-3)</sup>
-and having long term side effects change brain chemistry and
+and having long term side effects such as a change in brain chemistry
+and
 signaling<sup>[4](https://linkinghub.elsevier.com/retrieve/pii/S0197018618303905)</sup>.
 
 I have over 300,000 reports of all drugs and side effects reported for
-over 3 decades, with the reports with Methylephenidate and Paranoia
+over 3 decades, with the reports of Methylephenidate with Paranoia
 labeled as shown below:
 
 ``` r
@@ -155,9 +158,10 @@ report_dat[,.N,.(nichd,D,E)] %>%
 
 The bottom right panel is what I’m really interested in. It shows
 there’s only reports of Methylphenidate and Paranoia from early
-childhood to late adolescence.
+childhood to late adolescence. But the data for other drugs and other
+events should be taken into account as well.
 
-Now, in normal pharmacovigilance activitiews like this, the association
+Now, in normal pharmacovigilance activities like this, the association
 is often quantified as the event prevalence ratio between when the drug
 was reported and when it was not:
 
@@ -201,9 +205,11 @@ However, this is still limited by observations. What is meant is that if
 there are no observations of Methylphenidate and Paranoia reported
 together, then the PRR cannot be calculated.
 
-We can suppose that even though we don’t observe an assocviation, there
-is still a nontrivial risk of the side effect if a child were to take
-Methylphenidate. This is where modeling strategies come into play.
+We can suppose that even though we don’t observe a direct association,
+there is still a nontrivial risk of the side effect if a child were to
+take Methylphenidate, suggesting there is added value in sharing
+information across child development stages. This is where modeling
+strategies come into play.
 
 # Modeling
 
@@ -217,8 +223,8 @@ Logistic regression is an extremely popular approach for this type of
 binary association.
 
 Basically, this linear model is an equation of a line \(Y = mx + b\).
-However, to make the equattion work with a binary \(Y\), we transform
-the equation which I’m not going to show here but can be easily found
+However, to make the equation work with a binary \(Y\), we transform the
+equation which I’m not going to show here but can be easily found
 online. In the logit versus high school math parlance, the equation is
 
 <center>
@@ -233,14 +239,15 @@ association with the characteristic(s), and \(\beta_0\) is the intercept
 term of the proclivity of the population of reports to contain Paranoia
 versus not Paranoia when Methylphenidate is not reported.
 
-The characteristics we want is the child development stages with
-Methylphenidate reported. the model specification should be an
-interaction between the two. Below I’m showing the coefficients for
-different model specifications and the AIC of the model, which is a way
-to quantitatively assess how well the data is fit by the model given how
-it was specified - more characteristics in the model will let the model
-fit the data better, but too many characteristics makes the model
-complicated. the AIC is a quantified form of that tradeoff.
+The characteristics we want to understand the risk of is the child
+development stages with Methylphenidate reported. The model
+specification should be an interaction between the two. Below I’m
+showing the coefficients for different model specifications and the AIC
+of the model, which is a way to quantitatively assess how well the data
+is fit by the model given how it was specified - more characteristics in
+the model will let the model fit the data better, but too many
+characteristics makes the model complicated. The AIC is a quantified
+form of that tradeoff.
 
 ``` r
 
@@ -300,10 +307,10 @@ specifications.
 There really isn’t a correlation between the PRR values and the model
 values, and we would like there to be.
 
-The model that seems to fit the data well and not be as complex is the
-model where we evaluate whether Methylphenidate was reported and what
-child stage the subject of the report is, follwed by the interaction
-which we’re interested in.
+The model that seems to fit the data well and not be as complex, is the
+model where we evaluate whether Methylphenidate was reported and what is
+the child stage the report’s subject, followed by the interaction which
+we’re interested in.
 
 This is not ideal since we want more or less the PRR and model
 coefficients to relate and to be nonnegative. (That’s mostly because I
@@ -394,8 +401,8 @@ This is also not the greatest model to use.
 ## Regression splines
 
 Regression splines are not too often used in this area of study but seem
-promising. They inherently model flexibility in the associations. The
-idea is to ‘stitch’ together individual bases or components of the
+promising. They contain inherent model flexibility in the associations.
+The idea is to ‘stitch’ together individual bases or components of the
 association function:
 
 ``` r
@@ -487,6 +494,13 @@ because this is just for illustration purposes.
 ## Generalized additive models
 
 <!-- https://rdrr.io/cran/mgcv/man/smooth.terms.html --->
+
+Now we introduce generalized additive models. These are generalized
+linear models that can contain (nonlinear) functions of characteristics.
+GAMs are most often used in ecological studies to study the associations
+among time and space. Here, we can use GAMs to understand drug responses
+over time. Below is a couple different ways we can specify GAMs and how
+we can understand the results from them.
 
 ``` r
 gam_datas <- NULL
@@ -784,8 +798,8 @@ specifications of associations.
 
 The AIC for the cubic spline interaction is actually the lowest of any
 model we generated, which points to this being a more appropriate model.
-But the coefficients for this momdel don’t mapp to every stage unlike
-the spline interaction model with the drug as a factor.
+But the coefficients for this momdel don’t map to every stage unlike the
+spline interaction model with the drug as a factor.
 
 ``` r
 
@@ -805,5 +819,17 @@ bind_rows(
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
-But good thing is they look very similar so even though the model
-doesn’t have the lowest AIC the estimated coefficients are similar.
+But good thing is they look very similar so even though the model that
+doesn’t have the lowest AIC has similar estimated coefficients.
+
+# Conclusion
+
+This was a whirlwind introduction to regression modeling of nonlinear
+associations using observational data. One can try to interpret the
+results of these data, but there is always caveats such as data quality
+and confounding, model bias and variance, as well as subsequent
+utilization of results. The above GAM should be specified to include who
+submitted the report and when, as well as the types of drugs that were
+submitted with the report. Nonetheless, GAMs show much promise in
+addressing these challenges and most importantly being able to answer
+the question being posed in this case more precisely.
